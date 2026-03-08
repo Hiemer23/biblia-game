@@ -1,0 +1,14 @@
+# Ignora o ambiente virtual
+.venv/
+venv/
+env/
+
+# Ignora os arquivos brutos das Bíblias
+biblias/
+
+# Ignora arquivos temporários do Python
+__pycache__/
+*.pyc
+
+# Ignora o arquivo de senhas (para o futuro)
+.env
