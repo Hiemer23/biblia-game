@@ -50,4 +50,8 @@ def importar_biblia(arquivo_origem, arquivo_destino, sigla_versao):
 
 if __name__ == '__main__':
     # Executa a função apontando para os arquivos corretos
-    importar_biblia('../biblias/NVI.sqlite', '../db/memobiblia.db', 'NVI')
+    importar_biblia('../biblias/AS21.sqlite', '../db/memobiblia.db', 'AS21')
+    #importar_biblia('../biblias/ARA.sqlite', '../db/memobiblia.db', 'ARA')
+    #importar_biblia('../biblias/KJA.sqlite', '../db/memobiblia.db', 'KJA')
+    #importar_biblia('../biblias/NTLH.sqlite', '../db/memobiblia.db', 'NTLH')
+    #importar_biblia('../biblias/NVI.sqlite', '../db/memobiblia.db', 'NVI')

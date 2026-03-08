@@ -1,0 +1,22 @@
+game-biblia-teste/
+│
+├── db/                   # Aqui fica o arquivo memobiblia.db
+│
+├── models/               # O "Model" (Interação com o Banco de Dados)
+│   ├── __init__.py       # Arquivo vazio que diz ao Python: "esta pasta é um módulo"
+│   └── database.py       # Classes para fazer os SELECTs, INSERTs e UPDATEs
+│
+├── views/                # A "View" (A interface do Kivy)
+│   ├── __init__.py
+│   ├── home.py           # A classe da Tela Principal (menu)
+│   ├── temas.py          # A classe da tela de seleção de temas
+│   └── flashcards.py     # A classe da tela do jogo de flashcards
+│
+├── controllers/          # O "Controller" (Lógica e Regras do Jogo)
+│   ├── __init__.py
+│   ├── motor_lacunas.py  # Lógica que escolhe as palavras para esconder
+│   └── pontuacao.py      # Lógica que calcula acertos e erros
+│
+├── requirements.txt      # Lista de dependências do projeto
+├── .gitignore            # Regras de segurança do Git
+└── main.py               # Importa tudo e dá o "Play" no App

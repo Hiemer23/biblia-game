@@ -40,14 +40,16 @@ def configurar_banco():
         )
     ''')
 
+    # 3. Tabela: Memorização (A ponte desvinculada da versão da Bíblia)
     cursor.execute('''
         CREATE TABLE memorizacao (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            texto_id INTEGER,
+            livro TEXT NOT NULL,
+            capitulo INTEGER NOT NULL,
+            versiculo INTEGER NOT NULL,
             tema_id INTEGER,
             acertos INTEGER DEFAULT 0,
             erros INTEGER DEFAULT 0,
-            FOREIGN KEY (texto_id) REFERENCES textos_biblicos (id),
             FOREIGN KEY (tema_id) REFERENCES temas (id)
         )
     ''')

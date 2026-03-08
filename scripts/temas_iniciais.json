@@ -1,0 +1,12 @@
+{
+  "Amor": [
+    {"livro": "João", "capitulo": 3, "versiculo": 16},
+    {"livro": "1 Coríntios", "capitulo": 13, "versiculo": 4},
+    {"livro": "1 João", "capitulo": 4, "versiculo": 8}
+  ],
+  "Salvação": [
+    {"livro": "Efésios", "capitulo": 2, "versiculo": 8},
+    {"livro": "Romanos", "capitulo": 10, "versiculo": 9},
+    {"livro": "Atos", "capitulo": 4, "versiculo": 12}
+  ]
+}
