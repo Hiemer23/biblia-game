@@ -1,6 +1,6 @@
 # 📖 Setup: Como rodar o MemoBíblia em um PC Novo
 
-Este guia contém o passo a passo para baixar, configurar e rodar o aplicativo do zero em qualquer computador, reconstruindo o banco de dados localmente.
+Este guia contém o passo a passo para baixar, configurar e rodar o aplicativo do zero em qualquer computador.
 
 ## ⚠️ Pré-requisito Crucial
 Para evitar erros de compilação do Kivy (especialmente no Windows), **NÃO** utilize versões do Python em fase de testes (como 3.13 ou 3.14). 
@@ -12,7 +12,13 @@ Certifique-se de ter o **Python 3.11 ou 3.12** instalado na máquina.
 Abra o terminal e clone o repositório do GitHub:
 ```bash
 git clone https://github.com/Hiemer23/biblia-game.git
-cd game-biblia-teste
+cd biblia-game
+```
+
+## Passo 2: Garantir que esteja em uma versão estável do python
+Atualmente a versão estável é 3.12
+```bash
+py install 3.12
 ```
 
 ## Passo 2: Criar e Ativar o Ambiente Virtual

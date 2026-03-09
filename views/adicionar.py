@@ -1,13 +1,27 @@
 from kivy.uix.screenmanager import Screen
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.scrollview import ScrollView
 from kivy.uix.label import Label
-from kivy.uix.textinput import TextInput
-from kivy.uix.spinner import Spinner
+from kivy.uix.popup import Popup
 from kivy.metrics import dp
-from views.componentes import BotaoArredondado
 
 from models.database import BancoDeDados
+from views.componentes import BotaoArredondado
+
+# ==========================================
+# CONFIGURAÇÕES DE DESIGN (TEMA DA TELA)
+# ==========================================
+ALTURA_BOTAO_FORM = dp(60) # Aumentamos de 44 para 60!
+ALTURA_BOTAO_POPUP = dp(60)
+ESPACO_PADRAO = dp(10)
+
+COR_BOTAO_FORM = (0.3, 0.3, 0.3, 1)       # Cinza escuro
+COR_BOTAO_POPUP = (0.2, 0.5, 0.8, 1)      # Azul
+COR_BOTAO_SUCESSO = (0.2, 0.7, 0.3, 1)    # Verde
+COR_BOTAO_VOLTAR = (0.4, 0.4, 0.4, 1)     # Cinza médio
+COR_TEXTO_ERRO = (1, 0.3, 0.3, 1)         # Vermelho
+COR_TEXTO_SUCESSO = (0.3, 1, 0.3, 1)      # Verde claro
 
 class AdicionarScreen(Screen):
     def __init__(self, **kwargs):
@@ -17,54 +31,44 @@ class AdicionarScreen(Screen):
         layout_principal = BoxLayout(orientation='vertical', padding=dp(20), spacing=dp(15))
         layout_principal.add_widget(Label(text="Adicionar Versículo", font_size=dp(28), size_hint=(1, 0.15), bold=True))
         
-        form_layout = GridLayout(cols=2, spacing=dp(10), size_hint=(1, 0.5))
+        # Usando a variável de espaçamento
+        form_layout = GridLayout(cols=2, spacing=ESPACO_PADRAO, size_hint=(1, 0.5))
         
-        # --- SPINNER: LIVRO ---
-        form_layout.add_widget(Label(text="Livro:", halign="right"))
-        self.spinner_livro = Spinner(
-            text='Selecione o Livro',
-            values=self.db.listar_livros(),
-            size_hint=(1, None), height=dp(44)
-        )
-        self.spinner_livro.bind(text=self.ao_escolher_livro)
-        form_layout.add_widget(self.spinner_livro)
+        # --- BOTÃO: LIVRO ---
+        form_layout.add_widget(self.criar_label_alinhado("Livro:"))
+        self.btn_livro = BotaoArredondado(text='Selecione o Livro', size_hint=(1, None), height=ALTURA_BOTAO_FORM, cor_fundo=COR_BOTAO_FORM)
+        self.btn_livro.bind(on_release=self.abrir_seletor_livros)
+        form_layout.add_widget(self.btn_livro)
         
-        # --- SPINNER: CAPÍTULO ---
-        form_layout.add_widget(Label(text="Capítulo:", halign="right"))
-        self.spinner_capitulo = Spinner(
-            text='-',
-            values=[],
-            size_hint=(1, None), height=dp(44),
-            disabled=True # Começa bloqueado até escolher o livro
-        )
-        self.spinner_capitulo.bind(text=self.ao_escolher_capitulo)
-        form_layout.add_widget(self.spinner_capitulo)
+        # --- BOTÃO: CAPÍTULO ---
+        form_layout.add_widget(self.criar_label_alinhado("Capítulo:"))
+        self.btn_capitulo = BotaoArredondado(text='-', size_hint=(1, None), height=ALTURA_BOTAO_FORM, disabled=True, cor_fundo=COR_BOTAO_FORM)
+        self.btn_capitulo.bind(on_release=self.abrir_seletor_capitulos)
+        form_layout.add_widget(self.btn_capitulo)
         
-        # --- SPINNER: VERSÍCULO ---
-        form_layout.add_widget(Label(text="Versículo:", halign="right"))
-        self.spinner_versiculo = Spinner(
-            text='-',
-            values=[],
-            size_hint=(1, None), height=dp(44),
-            disabled=True
-        )
-        form_layout.add_widget(self.spinner_versiculo)
+        # --- BOTÃO: VERSÍCULO ---
+        form_layout.add_widget(self.criar_label_alinhado("Versículo:"))
+        self.btn_versiculo = BotaoArredondado(text='-', size_hint=(1, None), height=ALTURA_BOTAO_FORM, disabled=True, cor_fundo=COR_BOTAO_FORM)
+        self.btn_versiculo.bind(on_release=self.abrir_seletor_versiculos)
+        form_layout.add_widget(self.btn_versiculo)
         
-        # O Tema continua sendo texto livre (ou poderíamos fazer um spinner no futuro também!)
-        form_layout.add_widget(Label(text="Tema:", halign="right"))
-        self.input_tema = TextInput(multiline=False, size_hint=(1, None), height=dp(44))
-        form_layout.add_widget(self.input_tema)
+        # --- BOTÃO: TEMA ---
+        form_layout.add_widget(self.criar_label_alinhado("Tema:"))
+        self.btn_tema = BotaoArredondado(text='Selecione o Tema', size_hint=(1, None), height=ALTURA_BOTAO_FORM, cor_fundo=COR_BOTAO_FORM)
+        self.btn_tema.bind(on_release=self.abrir_seletor_temas)
+        form_layout.add_widget(self.btn_tema)
         
         layout_principal.add_widget(form_layout)
         
         self.lbl_mensagem = Label(text="", size_hint=(1, 0.1))
         layout_principal.add_widget(self.lbl_mensagem)
         
-        box_botoes = BoxLayout(orientation='horizontal', spacing=dp(10), size_hint=(1, 0.25))
-        btn_voltar = BotaoArredondado(text="Voltar")
+        box_botoes = BoxLayout(orientation='horizontal', spacing=ESPACO_PADRAO, size_hint=(1, 0.10))
+        
+        btn_voltar = BotaoArredondado(text="Voltar", cor_fundo=COR_BOTAO_VOLTAR)
         btn_voltar.bind(on_release=self.voltar_home)
         
-        btn_salvar = BotaoArredondado(text="Salvar", background_color=(0.2, 0.7, 0.3, 1))
+        btn_salvar = BotaoArredondado(text="Salvar", cor_fundo=COR_BOTAO_SUCESSO)
         btn_salvar.bind(on_release=self.salvar_versiculo)
         
         box_botoes.add_widget(btn_voltar)
@@ -73,50 +77,138 @@ class AdicionarScreen(Screen):
         layout_principal.add_widget(box_botoes)
         self.add_widget(layout_principal)
 
-    # --- LÓGICA DO EFEITO DOMINÓ ---
-    def ao_escolher_livro(self, spinner, livro_selecionado):
-        if livro_selecionado != 'Selecione o Livro':
-            # Busca os capítulos daquele livro e destrava o botão
-            self.spinner_capitulo.values = self.db.listar_capitulos(livro_selecionado)
-            self.spinner_capitulo.text = 'Selecione'
-            self.spinner_capitulo.disabled = False
-            
-            # Reseta o versículo
-            self.spinner_versiculo.text = '-'
-            self.spinner_versiculo.values = []
-            self.spinner_versiculo.disabled = True
+    def on_pre_enter(self, *args):
+        self.lbl_mensagem.text = ""
+        
+    def criar_label_alinhado(self, texto):
+        lbl = Label(
+            text=texto, 
+            halign="right",       
+            valign="middle",      
+            size_hint_y=None, 
+            height=ALTURA_BOTAO_FORM, # O Label agora acompanha a variável de altura automaticamente
+            padding_x=dp(10)      
+        )
+        lbl.bind(size=lbl.setter('text_size'))
+        return lbl
 
-    def ao_escolher_capitulo(self, spinner, capitulo_selecionado):
-        if capitulo_selecionado not in ('-', 'Selecione'):
-            livro = self.spinner_livro.text
-            self.spinner_versiculo.values = self.db.listar_versiculos(livro, int(capitulo_selecionado))
-            self.spinner_versiculo.text = 'Selecione'
-            self.spinner_versiculo.disabled = False
+    # ==========================================
+    # LÓGICA DOS SELETORES (ESTILO YOUVERSION)
+    # ==========================================
+
+    def abrir_seletor_livros(self, instancia):
+        conteudo = ScrollView(size_hint=(1, 1))
+        grade = GridLayout(cols=1, spacing=ESPACO_PADRAO, size_hint_y=None, padding=dp(10))
+        grade.bind(minimum_height=grade.setter('height'))
+        
+        livros = self.db.listar_livros()
+        popup = Popup(title="Selecione o Livro", content=conteudo, size_hint=(0.9, 0.8))
+
+        def selecionar(btn):
+            self.btn_livro.text = btn.text
+            popup.dismiss()
+            self.btn_capitulo.text = 'Selecione'
+            self.btn_capitulo.disabled = False
+            self.btn_versiculo.text = '-'
+            self.btn_versiculo.disabled = True
+
+        for livro in livros:
+            btn = BotaoArredondado(text=livro, size_hint_y=None, height=ALTURA_BOTAO_POPUP, raio=5, cor_fundo=COR_BOTAO_POPUP)
+            btn.bind(on_release=selecionar)
+            grade.add_widget(btn)
+
+        conteudo.add_widget(grade)
+        popup.open()
+
+    def abrir_seletor_capitulos(self, instancia):
+        conteudo = ScrollView(size_hint=(1, 1))
+        grade = GridLayout(cols=4, spacing=ESPACO_PADRAO, size_hint_y=None, padding=dp(10))
+        grade.bind(minimum_height=grade.setter('height'))
+        
+        capitulos = self.db.listar_capitulos(self.btn_livro.text)
+        popup = Popup(title=f"Capítulos de {self.btn_livro.text}", content=conteudo, size_hint=(0.9, 0.8))
+
+        def selecionar(btn):
+            self.btn_capitulo.text = btn.text
+            popup.dismiss()
+            self.btn_versiculo.text = 'Selecione'
+            self.btn_versiculo.disabled = False
+
+        for cap in capitulos:
+            btn = BotaoArredondado(text=cap, size_hint_y=None, height=ALTURA_BOTAO_POPUP, raio=10, cor_fundo=COR_BOTAO_POPUP)
+            btn.bind(on_release=selecionar)
+            grade.add_widget(btn)
+
+        conteudo.add_widget(grade)
+        popup.open()
+
+    def abrir_seletor_versiculos(self, instancia):
+        conteudo = ScrollView(size_hint=(1, 1))
+        grade = GridLayout(cols=5, spacing=ESPACO_PADRAO, size_hint_y=None, padding=dp(10))
+        grade.bind(minimum_height=grade.setter('height'))
+        
+        versiculos = self.db.listar_versiculos(self.btn_livro.text, int(self.btn_capitulo.text))
+        popup = Popup(title=f"Versículos", content=conteudo, size_hint=(0.9, 0.8))
+
+        def selecionar(btn):
+            self.btn_versiculo.text = btn.text
+            popup.dismiss()
+
+        for ver in versiculos:
+            btn = BotaoArredondado(text=ver, size_hint_y=None, height=ALTURA_BOTAO_POPUP, raio=10, cor_fundo=COR_BOTAO_POPUP)
+            btn.bind(on_release=selecionar)
+            grade.add_widget(btn)
+
+        conteudo.add_widget(grade)
+        popup.open()
+
+    def abrir_seletor_temas(self, instancia):
+        conteudo = ScrollView(size_hint=(1, 1))
+        grade = GridLayout(cols=1, spacing=ESPACO_PADRAO, size_hint_y=None, padding=dp(10))
+        grade.bind(minimum_height=grade.setter('height'))
+        
+        temas = self.db.listar_temas()
+        popup = Popup(title="Selecione o Tema", content=conteudo, size_hint=(0.9, 0.8))
+
+        def selecionar(btn):
+            self.btn_tema.text = btn.text
+            popup.dismiss()
+
+        if not temas:
+            grade.add_widget(Label(text="Nenhum tema cadastrado ainda.", size_hint_y=None, height=ALTURA_BOTAO_POPUP))
+        else:
+            for tema in temas:
+                btn = BotaoArredondado(text=tema['nome_tema'], size_hint_y=None, height=ALTURA_BOTAO_POPUP, raio=5, cor_fundo=COR_BOTAO_SUCESSO)
+                btn.bind(on_release=selecionar)
+                grade.add_widget(btn)
+
+        conteudo.add_widget(grade)
+        popup.open()
+
+    # ==========================================
+    # LÓGICA DE SALVAR
+    # ==========================================
 
     def salvar_versiculo(self, instancia):
-        livro = self.spinner_livro.text
-        capitulo = self.spinner_capitulo.text
-        versiculo = self.spinner_versiculo.text
-        tema = self.input_tema.text.strip()
+        livro = self.btn_livro.text
+        capitulo = self.btn_capitulo.text
+        versiculo = self.btn_versiculo.text
+        tema = self.btn_tema.text 
         
-        if livro == 'Selecione o Livro' or capitulo == 'Selecione' or versiculo == 'Selecione' or not tema:
-            self.lbl_mensagem.text = "Preencha todos os campos corretamente!"
-            self.lbl_mensagem.color = (1, 0.3, 0.3, 1)
+        if livro == 'Selecione o Livro' or capitulo in ('-', 'Selecione') or versiculo in ('-', 'Selecione') or tema == 'Selecione o Tema':
+            self.lbl_mensagem.text = "Preencha todos os campos!"
+            self.lbl_mensagem.color = COR_TEXTO_ERRO
             return
             
         sucesso, mensagem = self.db.vincular_versiculo_tema(livro, int(capitulo), int(versiculo), tema)
         
         self.lbl_mensagem.text = mensagem
         if sucesso:
-            self.lbl_mensagem.color = (0.3, 1, 0.3, 1)
-            # Reseta apenas o versículo e a mensagem para facilitar o cadastro em sequência
-            self.spinner_versiculo.text = 'Selecione'
-            self.input_tema.text = ""
+            self.lbl_mensagem.color = COR_TEXTO_SUCESSO
+            self.btn_versiculo.text = 'Selecione' 
         else:
-            self.lbl_mensagem.color = (1, 0.3, 0.3, 1)
-
+            self.lbl_mensagem.color = COR_TEXTO_ERRO
 
     def voltar_home(self, instancia):
-        self.manager.transition.direction = 'right' # <-- Adicione esta linha
+        self.manager.transition.direction = 'right'
         self.manager.current = 'home'
-        self.lbl_mensagem.text = ""
