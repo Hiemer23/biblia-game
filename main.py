@@ -1,6 +1,7 @@
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager
 from kivy.core.window import Window
+from kivy.utils import platform
 
 # Importa a nossa tela recém-criada
 from views.home import HomeScreen
@@ -8,9 +9,9 @@ from views.adicionar import AdicionarScreen
 from views.temas import TemasScreen
 from views.tema_detalhe import TemaDetalheScreen
 
-# Dica de Ouro: Como estamos rodando no PC, isso força a janela a abrir
-# no formato retrato (vertical), simulando a proporção de um celular.
-Window.size = (360, 640)
+
+if platform not in ('android', 'ios'):
+    Window.size = (360, 640)
 
 class MemoBibliaApp(App):
     def build(self):
