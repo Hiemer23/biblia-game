@@ -1,11 +1,12 @@
 import os
 
-os.environ['KIVY_GL_BACKEND'] = 'angle_sdl2'
+#os.environ['KIVY_GL_BACKEND'] = 'angle_sdl2'
 
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager
 from kivy.core.window import Window
 from kivy.utils import platform
+from kivy.core.text import LabelBase
 
 # Importa a nossa tela recém-criada
 from views.home import HomeScreen
@@ -16,6 +17,20 @@ from views.tema_detalhe import TemaDetalheScreen
 
 if platform not in ('android', 'ios'):
     Window.size = (360, 640)
+
+
+
+# Pega o diretório onde o main.py está localizado
+
+BASE_DIR = os.path.dirname(__file__)
+font_path = os.path.join(BASE_DIR, 'assets', 'fonts', 'materialdesignicons-webfont.ttf')
+    
+LabelBase.register(
+    name='MDI', 
+    fn_regular=font_path
+)
+
+# -----------------------------------------------
 
 class MemoBibliaApp(App):
     def build(self):
@@ -28,6 +43,7 @@ class MemoBibliaApp(App):
         gerenciador.add_widget(TemasScreen(name='temas'))
         gerenciador.add_widget(TemaDetalheScreen(name='tema_detalhe'))
         
+        gerenciador.current = 'home'
         return gerenciador
 
 if __name__ == '__main__':

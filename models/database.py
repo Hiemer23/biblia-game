@@ -68,27 +68,33 @@ class BancoDeDados:
 
     def vincular_versiculo_tema(self, livro, capitulo, versiculo, nome_tema):
         """Salva a coordenada pura do versículo ligada ao tema."""
-        tema_id = self.obter_ou_criar_tema(nome_tema)
+        try:
+            # Garante que o tema existe e pega o ID (com a nossa formatação .title() se vier da tela)
+            tema_id = self.obter_ou_criar_tema(nome_tema)
 
-        with self._conectar() as conn:
-            cursor = conn.cursor()
-            
-            # Verifica se essa coordenada já está nesse tema
-            cursor.execute("""
-                SELECT id FROM memorizacao 
-                WHERE livro = ? AND capitulo = ? AND versiculo = ? AND tema_id = ?
-            """, (livro, capitulo, versiculo, tema_id))
-            
-            if cursor.fetchone():
-                return False, "Este versículo já está adicionado neste tema."
+            with self._conectar() as conn:
+                cursor = conn.cursor()
+                
+                # A sua trava original impecável
+                cursor.execute("""
+                    SELECT id FROM memorizacao 
+                    WHERE livro = ? AND capitulo = ? AND versiculo = ? AND tema_id = ?
+                """, (livro, capitulo, versiculo, tema_id))
+                
+                if cursor.fetchone():
+                    return False, f"O versículo já está cadastrado em {nome_tema}."
 
-            cursor.execute("""
-                INSERT INTO memorizacao (livro, capitulo, versiculo, tema_id, acertos, erros)
-                VALUES (?, ?, ?, ?, 0, 0)
-            """, (livro, capitulo, versiculo, tema_id))
-            conn.commit()
-            
-            return True, "Versículo adicionado com sucesso!"
+                # O seu INSERT original com as colunas de acertos e erros
+                cursor.execute("""
+                    INSERT INTO memorizacao (livro, capitulo, versiculo, tema_id, acertos, erros)
+                    VALUES (?, ?, ?, ?, 0, 0)
+                """, (livro, capitulo, versiculo, tema_id))
+                
+                conn.commit()
+                return True, "Versículo adicionado com sucesso!"
+                
+        except Exception as e:
+            return False, f"Erro no banco: {str(e)}"
 
     def remover_vinculo_tema(self, livro, capitulo, versiculo, nome_tema):
         """Remove um versículo de um tema específico (Delete) pelas coordenadas."""
@@ -135,11 +141,18 @@ class BancoDeDados:
             return [str(linha['versiculo']) for linha in cursor.fetchall()]
     
     def listar_temas(self):
-        """Retorna uma lista com todos os temas cadastrados em ordem alfabética."""
+        """Retorna a lista de temas e a quantidade de versículos em cada um."""
         with self._conectar() as conn:
+            conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
-            cursor.execute("SELECT id, nome_tema FROM temas ORDER BY nome_tema")
-            return [dict(linha) for linha in cursor.fetchall()]
+            # Usamos um sub-select para contar os versículos vinculados a cada ID de tema
+            cursor.execute("""
+                SELECT id, nome_tema, 
+                (SELECT COUNT(*) FROM memorizacao WHERE tema_id = temas.id) as qtd 
+                FROM temas 
+                ORDER BY nome_tema ASC
+            """)
+            return [dict(row) for row in cursor.fetchall()]
         
     def listar_versiculos_do_tema(self, nome_tema, versao="AS21"):
         """Retorna as coordenadas e o TEXTO dos versículos vinculados a um tema."""
@@ -155,3 +168,24 @@ class BancoDeDados:
                 ORDER BY m.livro, m.capitulo, m.versiculo
             """, (nome_tema, versao))
             return [dict(linha) for linha in cursor.fetchall()]
+        
+    def atualizar_nome_tema(self, nome_antigo, nome_novo):
+        """Altera o nome de um tema existente."""
+        with self._conectar() as conn:
+            cursor = conn.cursor()
+            cursor.execute("UPDATE temas SET nome_tema = ? WHERE nome_tema = ?", (nome_novo, nome_antigo))
+            conn.commit()
+
+    def excluir_tema(self, nome_tema):
+        """Remove um tema e todos os vínculos de versículos associados a ele."""
+        with self._conectar() as conn:
+            cursor = conn.cursor()
+            # 1. Primeiro removemos os versículos da tabela de memorização vinculados a este tema
+            cursor.execute("""
+                DELETE FROM memorizacao 
+                WHERE tema_id = (SELECT id FROM temas WHERE nome_tema = ?)
+            """, (nome_tema,))
+            
+            # 2. Depois removemos o tema em si
+            cursor.execute("DELETE FROM temas WHERE nome_tema = ?", (nome_tema,))
+            conn.commit()

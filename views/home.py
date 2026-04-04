@@ -4,6 +4,17 @@ from kivy.uix.label import Label
 from kivy.metrics import dp
 from views.componentes import BotaoArredondado
 
+COR_BOTAO_FORM = (0.3, 0.3, 0.3, 1)       # Cinza escuro
+COR_BOTAO_POPUP = (0.2, 0.5, 0.8, 1)      # Azul
+COR_BOTAO_SUCESSO = (0.2, 0.7, 0.3, 1)    # Verde
+COR_BOTAO_VOLTAR = (0.4, 0.4, 0.4, 1)     # Cinza médio
+COR_TEXTO_ERRO = (1, 0.3, 0.3, 1)         # Vermelho
+COR_TEXTO_SUCESSO = (0.3, 1, 0.3, 1)      # Verde claro
+
+ALTURA_TITULO = 0.15
+ALTURA_TABELA = 0.65
+ALTURA_FOOTER = 0.20
+
 class HomeScreen(Screen):
     def __init__(self, **kwargs):
         # O super() garante que a classe inicialize corretamente como uma Tela (Screen) do Kivy
@@ -14,17 +25,16 @@ class HomeScreen(Screen):
         layout_principal = BoxLayout(orientation='vertical', padding=dp(20), spacing=dp(20))
         
         # --- 1. CABEÇALHO ---
-        # size_hint=(1, 0.2) significa que ele ocupa 100% da largura e 20% da altura da tela
         lbl_titulo = Label(
             text="MemoBíblia", 
             font_size=dp(32), 
             bold=True, 
-            size_hint=(1, 0.2)
+            size_hint=(1, ALTURA_TITULO)
         )
         layout_principal.add_widget(lbl_titulo)
         
         # --- 2. BLOCO DE AÇÃO (Os Jogos) ---
-        box_jogos = BoxLayout(orientation='vertical', spacing=dp(15), size_hint=(1, 0.6))
+        box_jogos = BoxLayout(orientation='vertical', spacing=dp(15), size_hint=(1, ALTURA_TABELA))
         
         btn_palavras = BotaoArredondado(text="Palavras Ocultas", font_size=dp(20), cor_fundo=(0.3, 0.3, 0.3, 1))
         btn_referencia = BotaoArredondado(text="Onde Está Escrito?", font_size=dp(20), cor_fundo=(0.3, 0.3, 0.3, 1))
@@ -37,7 +47,7 @@ class HomeScreen(Screen):
         layout_principal.add_widget(box_jogos)
         
         # --- 3. BLOCO DE GERENCIAMENTO (Rodapé) ---
-        box_rodape = BoxLayout(orientation='horizontal', spacing=dp(10), size_hint=(1, 0.2))
+        box_rodape = BoxLayout(orientation='horizontal', spacing=dp(10), size_hint=(1, ALTURA_FOOTER))
         
         btn_temas = BotaoArredondado(text="Temas", font_size=dp(18), cor_fundo=(0.2, 0.5, 0.8, 1))
         btn_temas.bind(on_release=self.ir_para_temas)

@@ -27,10 +27,21 @@ class TemaDetalheScreen(Screen):
         self.scroll.add_widget(self.grade_versiculos)
         self.layout_principal.add_widget(self.scroll)
         
-        btn_voltar = BotaoArredondado(text="Voltar aos Temas", size_hint=(1, 0.1))
-        btn_voltar.bind(on_release=self.voltar_temas)
-        self.layout_principal.add_widget(btn_voltar)
+        #------------------------------------------
         
+        box_botoes = BoxLayout(orientation='horizontal', spacing=dp(10), size_hint=(1, 0.15))
+        
+        btn_voltar = BotaoArredondado(text="Voltar", cor_fundo=(0.4, 0.4, 0.4, 1))
+        btn_voltar.bind(on_release=self.voltar_temas)
+        
+        # --- NOVO BOTÃO DE ATALHO ---
+        btn_add_versiculo = BotaoArredondado(text="Adicionar Versículo", cor_fundo=(0.2, 0.7, 0.3, 1))
+        btn_add_versiculo.bind(on_release=self.ir_para_adicionar_com_tema)
+        
+        box_botoes.add_widget(btn_voltar)
+        box_botoes.add_widget(btn_add_versiculo)
+        
+        self.layout_principal.add_widget(box_botoes)
         self.add_widget(self.layout_principal)
 
     def on_pre_enter(self, *args):
@@ -121,3 +132,15 @@ class TemaDetalheScreen(Screen):
     def voltar_temas(self, instancia):
         self.manager.transition.direction = 'right' # <-- Adicione esta linha (Voltando)
         self.manager.current = 'temas'
+        
+    def ir_para_adicionar_com_tema(self, instancia):
+        # 1. Pega a tela de Adicionar na memória do aplicativo
+        tela_adicionar = self.manager.get_screen('adicionar')
+        
+        # 2. O Toque de Mestre: Muda o texto do botão "Tema" da outra tela
+        # self.tema_atual é a variável que já guarda o nome do tema nesta tela
+        tela_adicionar.btn_tema.text = self.tema_atual
+        
+        # 3. Faz a transição de tela
+        self.manager.transition.direction = 'left'
+        self.manager.current = 'adicionar'
